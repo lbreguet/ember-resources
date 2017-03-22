@@ -361,9 +361,9 @@ export default Ember.Component.extend({
     1.  Add `deleteItem='deleteItem'` to invoking `shopping-list`
     1.  Add the deleteItem action to the route
 
-### Create items on the API
+### Code-Along: Create items on the API
 
-1.  In the `shopping-list` component
+1.  In the `shopping-list` component (because items are associated with a list)
     1.  Add a form after `each` with `{{action "createItem" on="submit"}}`
     1.  Add an input to the form with `value=newItem.content`
     1.  Add a `newItem` property
@@ -380,6 +380,10 @@ some extra work.
 
 We'll extend the default application adapter, included in `ember-template` to
 handle this case.
+
+```
+sh ember generate adapter item
+```
 
 ## Additional Resources
 

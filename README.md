@@ -46,22 +46,24 @@ By the end of this session, you should be able to:
 | Adding code, but not seeing changes | Restart Server |
 | Are you in doubt? | Check the documentation! |
 | My component disappeared! | check spelling, pluralization, capitalization |
-| Template Error? | Did you remember to type `return` ? |
+| Missing data and/or broken view-state | Did you remember to type `return` in the model hook? |
 
-## Rachel's Nuggets of Advice
+## Rachel's Nuggets of Advice and some other notes
 - Make sure everything works before you make things dynamic!
   - When you make a model and a route, put some throwaway code in handlebars and TEST IT!
   - Can we get at least one list? use the model hook to test it!
 - When in doubt, check the docs! :)
+- Make CLEAR console log messages!
 - Common mistakes: forgetting to point what we're displaying the right component in template
-  - e.g. forgetting `list=model` in the template
-  - `{{shopping-list list=model}}`
-  - `model` here is the data we're passing down
-  - `list` here is the name of the component
+    - e.g. forgetting `list=model` in the template
+    - `{{shopping-list list=model}}`
+    - `model` here is the data we're passing down
+    - `list` here is the name of the component
 - checklist:
-  - Is there a problem with your model?
-  - Is your template connected?
-  - Are you on the right URL?
+    - Is there a problem with your model?
+    - Is your template connected?
+    - Are you on the right URL?
+    - How's your route?
 
 ## ember-data and CRUD
 
@@ -303,6 +305,48 @@ pattern, which essentially means two things:
 +  },
  });
 ```
+## Notes
+- The template and the component are like one unit
+- Define the action on the Component
+- Determine where the action should be handled on the template
+- *The store is the source of truth*
+- There's a cycle of data! So if we cross something out on the list,
+    - The data doesn't change onclick
+    - the action gets sent to the route
+    - data changes
+    - Data gets sent back down
+    - item gets crossed off
+- How does the Component know what item is? It's passed down from the parent Component
+    - the parent component includes a template
+    - Look at binding notes in templates/components/shopping-list.hbs
+- **Explanation on components/template relationship from Jeff:**
+```js
+export default Ember.Component.extend({
+  tagName: 'li',
+  classNameBindings: ['listItemCompleted'],
+  listItemCompleted: Ember.computed.alias('item.done'),
+  actions: {
+    toggleDone () {
+      console.log('SENDING ACTION');
+
+      // listItemCompleted is now dependent on what the API says!
+      return this.sendAction('toggleDone', this.get('item'));
+    },
+  },
+  // invisibleTemplate: {{foo item=item}} // `item=item` is called data binding
+  // this means that now, as soon as we write it and Ember interprets it, we have a real property
+  // on this object, like so:
+  // item: item
+  // like, Ember knows about it and uses it, but we don't physically see it in the code
+});
+```
+- When we talk about bubbling objects in Ember, they're not actually bubbling
+- The value from a software design POV is components are separate
+    - More usable, more testable, easier to debug
+- Since they need to be separate, they can't bubble unless we explicitly tell them otherwise
+- Something cool to research if you're interested: *closure actions*
+- A component structure of A-child-B implies that B will inherit stuff from A...
+    - but Ember doesn't do that LOL
 
 ### Lab: Delete items on the API
 

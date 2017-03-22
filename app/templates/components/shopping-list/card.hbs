@@ -1,1 +1,4 @@
-{{#link-to 'list' list}}<h3 class="list-header">{{list.title}}</h3>{{/link-to}}
+{{#link-to 'list' list}}
+  <h3 class="list-header">{{list.title}}</h3>
+{{/link-to}}
+<button class="btn btn-xs btn-primary" {{action 'edit'}}>Edit</button>

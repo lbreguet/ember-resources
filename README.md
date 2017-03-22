@@ -309,6 +309,7 @@ pattern, which essentially means two things:
 - The template and the component are like one unit
 - Define the action on the Component
 - Determine where the action should be handled on the template
+- You can't nest actions!!!
 - *The store is the source of truth*
 - There's a cycle of data! So if we cross something out on the list,
     - The data doesn't change onclick

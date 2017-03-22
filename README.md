@@ -399,12 +399,12 @@ sh ember generate adapter item
 1.  In the `lists` route
     1.  Add `edit='editList'` to invoking `shopping-list/card`
     1.  Add an `editList` action handler to `transitionTo` `list/edit`
-1.  In the `listr-list/edit` component
+1.  In the `shopping-list/edit` component
     1.  Add a form with `{{action 'save' on='submit'}}`
     1.  Add {{input value=list.title}} to the form
     1.  Add a `save` action handler to send the `save` action up
 1.  In the `list/edit` route
-    1.  Add `save='saveList'` to the invocation of `listr-list/edit`
+    1.  Add `save='saveList'` to the invocation of `shopping-list/edit`
     1.  Add a `saveList` action handler
 
 - app/templates/components/shopping-list/card.hbs
@@ -431,8 +431,8 @@ sh ember generate adapter item
 - templates/lists.hbs
 ```diff
  {{#each model as |list|}}
--  {{listr-list/card list=list}}
-+  {{listr-list/card list=list edit='editList'}}
+-  {{shopping-list/card list=list}}
++  {{shopping-list/card list=list edit='editList'}}
  {{/each}}
 ```
 
@@ -499,7 +499,7 @@ export default Ember.Route.extend({
 
 #### `list/index/template.hbs`
 ```hbs
-{{listr-list list=model
+{{shopping-list list=model
              toggleItemDone='toggleItemDone'
              deleteItem='deleteItem'
              createItem='createItem'
@@ -524,7 +524,7 @@ export default Ember.Route.extend({
 #### `list/template.hbs`
 
 ```diff
--{{listr-list list=model
+-{{shopping-list list=model
 -             toggleItemDone='toggleItemDone'
 -             deleteItem='deleteItem'
 -             createItem='createItem'
@@ -569,12 +569,12 @@ export default Ember.Route.extend({
 1.  Exchange the code `lists/template.hbs` and `lists/index/template.hbs`
 1.  Add a `link-to` for `lists.new` to `lists/index/template.hbs`
 1.  In the `lists.new` route
-    1.  Invoke the `listr-list/edit` component from `template.hbs`
+    1.  Invoke the `shopping-list/edit` component from `template.hbs`
     1.  Add the appropriate `model` method and `actions` to `component.js`
 
 ```diff
  {{#each model as |list|}}
-   {{listr-list/card list=list edit='editList' delete='deleteList'}}
+   {{shopping-list/card list=list edit='editList' delete='deleteList'}}
  {{/each}}
 +<br>
 +{{#link-to 'lists.new' class="btn btn-xs btn-success" }}
@@ -583,7 +583,7 @@ export default Ember.Route.extend({
 ```
 
 ```hbs
-{{listr-list/edit list=model save='createList' cancel='cancelCreateList'}}
+{{shopping-list/edit list=model save='createList' cancel='cancelCreateList'}}
 ```
 
 ```js
@@ -611,7 +611,7 @@ export default Ember.Route.extend({
 
 ### Delete a ListR list
 
-1.  In the `listr-list/card` component
+1.  In the `shopping-list/card` component
     1.  Add a delete action
     1.  Add a delete button with `{{action 'delete'}}``
 
@@ -751,7 +751,7 @@ app/lists/index/template.hbs
 +  {{/link-to}}
 +{{/if}}
  {{#each model as |list|}}
-   {{listr-list/card list=list edit='editList' delete='deleteList'}}
+   {{shopping-list/card list=list edit='editList' delete='deleteList'}}
  {{/each}}
 ```
 

@@ -46,6 +46,22 @@ By the end of this session, you should be able to:
 | Adding code, but not seeing changes | Restart Server |
 | Are you in doubt? | Check the documentation! |
 | My component disappeared! | check spelling, pluralization, capitalization |
+| Template Error? | Did you remember to type `return` ? |
+
+## Rachel's Nuggets of Advice
+- Make sure everything works before you make things dynamic!
+  - When you make a model and a route, put some throwaway code in handlebars and TEST IT!
+  - Can we get at least one list? use the model hook to test it!
+- When in doubt, check the docs! :)
+- Common mistakes: forgetting to point what we're displaying the right component in template
+  - e.g. forgetting `list=model` in the template
+  - `{{shopping-list list=model}}`
+  - `model` here is the data we're passing down
+  - `list` here is the name of the component
+- checklist:
+  - Is there a problem with your model?
+  - Is your template connected?
+  - Are you on the right URL?
 
 ## ember-data and CRUD
 
@@ -64,7 +80,6 @@ actual interactions with the underlying API(s)).
 
 - If you use RESTful routes, you don't have to configure them! cool
 - Ember likes convention over configuration! :)
-- When in doubt, check the docs
 - DS stands for Data Store
 
 ## Refactor ListR
@@ -138,7 +153,16 @@ export default Ember.Route.extend({
 ember generate model item content:string done:boolean list:belongs-to:list
 ember generate route list
 ```
-
+- This generates this in app/models/item.js:
+```js
+export default DS.Model.extend({
+  content: DS.attr('string'),
+  done: DS.attr('boolean'),
+  // first list is the back-end list, second list is the one from the model
+  list: DS.belongsTo('list')
+});
+```
+- Need to add the other end of the relationship in list.js! LOL #dontforget
 ```diff
  export default DS.Model.extend({
    title: DS.attr('string'),
@@ -146,7 +170,7 @@ ember generate route list
 +  items: DS.hasMany('item'),
  });
 ```
-
+- Generates a route for a single list!
 ```diff
  Router.map(function () {
    this.route('lists');

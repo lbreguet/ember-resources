@@ -118,6 +118,7 @@ reference the store and query it for all instances.
 ```js
 export default Ember.Route.extend({
   model () {
+    // now we send a GET request to lists! wild
     return this.get('store').findAll('list');
   }
 });

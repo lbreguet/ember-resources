@@ -1,6 +1,15 @@
 <h3 class="list-header" {{action 'toggleListDetail'}}>{{list.title}}</h3>
 <ul>
   {{#each list.items as |item|}}
-    {{shopping-list/item item=item}}
+    {{shopping-list/item
+      item=item
+      toggleDone='toggleItemDone'
+    }}
   {{/each}}
 </ul>
+
+{{!-- line 5 is a binding
+line 6: we are BINDING and action down... we're binding a name to the Component
+"When you go up, look for something with the name 'toggleItemDone'"
+bindings ALWAYS happen down
+ --}}

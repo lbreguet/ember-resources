@@ -38,6 +38,15 @@ By the end of this session, you should be able to:
 1.  Start the api with `bin/rails server`
 1.  Start the client with `ember server`
 
+## Ember Debugging
+
+| Problem | Solution/ Advice |
+| ---------- | -----------------|
+| link not there? | Does the route exist? |
+| Adding code, but not seeing changes | Restart Server |
+| Are you in doubt? | Check the documentation! |
+| My component disappeared! | check spelling, pluralization, capitalization |
+
 ## ember-data and CRUD
 
 In the past few days, you've seen a whole lot of Ember's 'view' layer - the
@@ -52,6 +61,11 @@ called `ember-data`.
 information between the client and the API, most notably Models (which
 represent back-end resources as Ember Objects) and Adapters (which manage the
 actual interactions with the underlying API(s)).
+
+- If you use RESTful routes, you don't have to configure them! cool
+- Ember likes convention over configuration! :)
+- When in doubt, check the docs
+- DS stands for Data Store
 
 ## Refactor ListR
 
@@ -74,6 +88,10 @@ ember generate route lists
 1.  Copy the list title display to `shopping-list/card` (without any action)
 1.  Refactor the `lists` route template to use `shopping-list/card`
 1.  Refactor the `lists` route `model` method to use the ActiveModelAdapter
+
+- We just want to show the name and have people go to the individual list
+- That's why we have a shopping-list/card
+- Tbh it's Rachel/the developer's personal decision, and we respect that
 
 ```sh
 ember generate model list title:string hidden:boolean

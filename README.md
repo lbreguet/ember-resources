@@ -385,6 +385,389 @@ handle this case.
 sh ember generate adapter item
 ```
 
+## Adding CRUD to lists
+
+### Editing a ListR title
+
+1.  Generate `list/edit` route (don't nest - at least for now)
+1.  Generate `listr-list/edit` component
+1.  In the `listr-list/card` component
+    1.  Add an 'Edit' button with `{{action 'edit'}}`
+    1.  Add an edit action handler to send the action up
+1.  In the `lists` route
+    1.  Add `edit='editList'` to invoking `listr-list/card`
+    1.  Add an `editList` action handler to `transitionTo` `list/edit`
+1.  In the `listr-list/edit` component
+    1.  Add a form with `{{action 'save' on='submit'}}`
+    1.  Add {{input value=list.title}} to the form
+    1.  Add a `save` action handler to send the `save` action up
+1.  In the `list/edit` route
+    1.  Add `save='saveList'` to the invocation of `listr-list/edit`
+    1.  Add a `saveList` action handler
+
+```diff
+ {{#link-to 'list' list }}
+   <h3 class="list-header">{{list.title}}</h3>
+ {{/link-to}}
++<button class="btn btn-primary" {{action 'edit'}}>
++  Edit
++</button>
+```
+
+```diff
+ export default Ember.Component.extend({
++  actions: {
++    edit () {
++      this.sendAction('edit', this.get('list'));
++    },
++  },
+ });
+```
+
+```diff
+ {{#each model as |list|}}
+-  {{listr-list/card list=list}}
++  {{listr-list/card list=list edit='editList'}}
+ {{/each}}
+```
+
+```diff
+ model () {
+   return this.get('store').findAll('list');
+ },
++
++  actions: {
++    editList (list) {
++      this.transitionTo('list/edit', list);
++    },
++  },
+ });
+```
+
+```js
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model (params) {
+    console.error(params);
+    return this.get('store').findRecord('list', params.list_id);
+  },
+
+  actions: {
+    saveList(list) {
+      list.save()
+        .then(()=>this.transitionTo('lists'));
+    },
+  },
+});
+```
+
+### Refactor `list` routes into nested routes
+
+#### `list/edit/route.js`
+```diff
+ import Ember from 'ember';
+
+ export default Ember.Route.extend({
+-  model (params) {
+-    console.error(params);
+-    return this.get('store').findRecord('list', params.list_id);
+-  },
+-
+-  actions: {
+-    saveList(list) {
+-      list.save()
+-        .then(()=>this.transitionTo('lists'));
+-    },
+-  },
+ });
+```
+
+#### `list/index/route.js`
+
+```js
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+});
+```
+
+#### `list/index/template.hbs`
+```hbs
+{{listr-list list=model
+             toggleItemDone='toggleItemDone'
+             deleteItem='deleteItem'
+             createItem='createItem'
+           }}
+```
+
+#### `list/route.js`
+
+```diff
+       let item = this.get('store').createRecord('item', data);
+       item.save();
+     },
++
++    saveList(list) {
++      list.save()
++        .then(()=>this.transitionTo('lists'));
++    },
+   },
+ });
+```
+
+#### `list/template.hbs`
+
+```diff
+-{{listr-list list=model
+-             toggleItemDone='toggleItemDone'
+-             deleteItem='deleteItem'
+-             createItem='createItem'
+-           }}
++{{outlet}}
+```
+
+### `lists/route.js`
+
+```diff
+   actions: {
+     editList (list) {
+-      this.transitionTo('list/edit', list);
++      this.transitionTo('list.edit', list);
+     },
+   },
+ });
+```
+
+### `router.js`
+
+```diff
+
+ Router.map(function () {
+   this.route('lists');
+-  this.route('list', { path: 'lists/:list_id' });
++  this.route('list', { path: 'lists/:list_id' }, function () {
++    this.route('edit');
++  });
+
+-  this.route('list/edit', { path: 'lists/:list_id/edit' });
+ });
+
+ export default Router;
+```
+
+### Creating a new list
+
+1.  Generate a `lists/index` route
+1.  Generate a `lists/new` route
+1.  Exchange the code `lists/component.js` and `lists/index/component.js`
+1.  Exchange the code `lists/template.hbs` and `lists/index/template.hbs`
+1.  Add a `link-to` for `lists.new` to `lists/index/template.hbs`
+1.  In the `lists.new` route
+    1.  Invoke the `listr-list/edit` component from `template.hbs`
+    1.  Add the appropriate `model` method and `actions` to `component.js`
+
+```diff
+ {{#each model as |list|}}
+   {{listr-list/card list=list edit='editList' delete='deleteList'}}
+ {{/each}}
++<br>
++{{#link-to 'lists.new' class="btn btn-xs btn-success" }}
++  New List
++{{/link-to}}
+```
+
+```hbs
+{{listr-list/edit list=model save='createList' cancel='cancelCreateList'}}
+```
+
+```js
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model () {
+    return this.get('store').createRecord('list', {});
+  },
+
+  actions: {
+    createList(list) {
+      list.save()
+        .then(()=>this.transitionTo('lists'));
+    },
+
+    cancelCreateList(list) {
+      list.rollbackAttributes();
+      this.transitionTo('lists');
+    },
+
+  },
+});
+```
+
+### Delete a ListR list
+
+1.  In the `listr-list/card` component
+    1.  Add a delete action
+    1.  Add a delete button with `{{action 'delete'}}``
+
+```diff
+     edit () {
+
+       this.sendAction('edit', this.get('list'));
+     },
++
++    delete () {
++      this.sendAction('delete', this.get('list'));
++    },
+   },
+ });
+```
+
+```hbs
+<button class="btn btn-danger" {{action 'delete'}}>
+  Delete
+</button>
+```
+
+```diff
+ export default Ember.Route.extend({
++  actions: {
++    deleteList(list) {
++      list.destroyRecord()
++        .then(() => this.transitionTo('lists'));
++    },
++  },
+ });
+```
+
+Can we delete a non-empty lists?
+
+#### Refactor delete availability
+
+Now we'll add code to ensure the list is empty before we delete it
+
+```diff
+ <button class="btn btn-primary" {{action 'edit'}}>
+   Edit
+ </button>
++{{#if list.isEmpty}}
+   <button class="btn btn-danger" {{action 'delete'}}>
+     Delete
+   </button>
++{{/if}}
+```
+
+```diff
+ import DS from 'ember-data';
++import Ember from 'ember';
+
+ export default DS.Model.extend({
+   title: DS.attr('string'),
+   hidden: DS.attr('boolean'),
+   items: DS.hasMany('item'),
++  isEmpty: Ember.computed('items', function () {
++    let items = this.hasMany('items');
++    return items.ids().length === 0;
++  }),
+ });
+```
+
+### Add pagination
+
+app/list/route.js
+
+```diff
+     cancelSaveList(list) {
+       list.rollbackAttributes();
+-      this.transitionTo('lists');
++      history.back();
+     },
+   },
+ });
+```
+
+app/lists/index/controller.js
+
+```js
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  queryParams: ['page', 'size'],
+  size: 2,
+  page: 1,
+  prev: Ember.computed('page', function () {
+    let page = this.get('page');
+    return page > 1 && page - 1;
+  }),
+  next: Ember.computed('page', function () {
+    return this.get('model.length') >= this.get('size') &&
+      this.get('page') + 1;
+  }),
+});
+```
+
+app/lists/index/route.js
+
+```diff
+ import Ember from 'ember';
+
+ export default Ember.Route.extend({
++  queryParams: {
++    page: {
++      refreshModel: true,
++    },
++  },
++
++  model (params) {
++    return this.get('store').query('list', params);
++  },
++
+   actions: {
++    editList (list) {
++      this.transitionTo('list.edit', list);
++    },
++
+     deleteList(list) {
+       list.destroyRecord()
+         .then(() => this.transitionTo('lists'));
+```
+
+app/lists/index/template.hbs
+
+```diff
++{{#if prev}}
++  {{#link-to 'lists' (query-params page=prev size=size)}}
++    Previous
++  {{/link-to}}
++{{/if}}
++{{#if next}}
++  {{#link-to 'lists' (query-params page=next size=size)}}
++    Next
++  {{/link-to}}
++{{/if}}
+ {{#each model as |list|}}
+   {{listr-list/card list=list edit='editList' delete='deleteList'}}
+ {{/each}}
+```
+
+app/lists/route.js
+
+```diff
+ import Ember from 'ember';
+
+ export default Ember.Route.extend({
+-  model () {
+-    return this.get('store').findAll('list');
+-  },
+-
+-  actions: {
+-    editList (list) {
+-      this.transitionTo('list.edit', list);
+-    },
+-  },
+ });
+```
+
 ## Additional Resources
 
 -   [Ember API : Ember.ActionHandler](http://emberjs.com/api/classes/Ember.ActionHandler.html)

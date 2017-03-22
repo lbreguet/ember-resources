@@ -310,6 +310,8 @@ pattern, which essentially means two things:
 - Define the action on the Component
 - Determine where the action should be handled on the template
 - You can't nest actions!!!
+- Nested routes in Ember are not about nested data, they're about nested UI
+- if you un-nest a route in the router, remember to un-nest it in the file LOl
 - *The store is the source of truth*
 - There's a cycle of data! So if we cross something out on the list,
     - The data doesn't change onclick
@@ -390,12 +392,12 @@ sh ember generate adapter item
 ### Editing a ListR title
 
 1.  Generate `list/edit` route (don't nest - at least for now)
-1.  Generate `listr-list/edit` component
-1.  In the `listr-list/card` component
+1.  Generate `shopping-list/edit` component
+1.  In the `shopping-list/card` component
     1.  Add an 'Edit' button with `{{action 'edit'}}`
     1.  Add an edit action handler to send the action up
 1.  In the `lists` route
-    1.  Add `edit='editList'` to invoking `listr-list/card`
+    1.  Add `edit='editList'` to invoking `shopping-list/card`
     1.  Add an `editList` action handler to `transitionTo` `list/edit`
 1.  In the `listr-list/edit` component
     1.  Add a form with `{{action 'save' on='submit'}}`
@@ -405,6 +407,7 @@ sh ember generate adapter item
     1.  Add `save='saveList'` to the invocation of `listr-list/edit`
     1.  Add a `saveList` action handler
 
+- app/templates/components/shopping-list/card.hbs
 ```diff
  {{#link-to 'list' list }}
    <h3 class="list-header">{{list.title}}</h3>
@@ -414,6 +417,7 @@ sh ember generate adapter item
 +</button>
 ```
 
+- app/components/shopping-list/card.js
 ```diff
  export default Ember.Component.extend({
 +  actions: {
@@ -424,6 +428,7 @@ sh ember generate adapter item
  });
 ```
 
+- templates/lists.hbs
 ```diff
  {{#each model as |list|}}
 -  {{listr-list/card list=list}}
